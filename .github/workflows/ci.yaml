@@ -1,7 +1,7 @@
-name: DevOps CI/CD
+name: CI Pipeline
 
 on:
-  push:
+  oull_request:
     branches:
       - main
 env:
