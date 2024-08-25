@@ -9,6 +9,7 @@
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
+    "lint:report": "eslint . --max-warnings 0 --format=json-with-metadata --output-file eslint_report.json",
     "generate:component": "turbo gen react-component"
   },
   "devDependencies": {

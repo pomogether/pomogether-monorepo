@@ -6,7 +6,8 @@
     "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "lint:report": "next lint --format=json-with-metadata --output-file eslint_report.json"
   },
   "dependencies": {
     "@repo/ui": "workspace:*",

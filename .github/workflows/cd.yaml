@@ -11,7 +11,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-      
+
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
@@ -23,17 +23,46 @@ jobs:
           outputs: type=docker,dest=/tmp/${{ github.sha }}.tar
           context: .
           file: apps/api/Dockerfile
-          
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ github.sha }}
           path: /tmp/${{ github.sha }}.tar
-          
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 9.1.4
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Lint code
+        run: pnpm lint:report
+
+      - name: Annotate Code Linting Results
+        uses: ataylorme/eslint-annotate-action@v3
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          report-json: "**/eslint_report.json"
+
   container-scan:
     runs-on: ubuntu-latest
-    needs: build
-      
+    needs: [build, lint]
+
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
@@ -52,14 +81,14 @@ jobs:
         uses: aquasecurity/trivy-action@0.20.0
         with:
           image-ref: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          format: 'sarif'
-          output: 'trivy-results.sarif'
+          format: "sarif"
+          output: "trivy-results.sarif"
 
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: "trivy-results.sarif"
-  
+
   push-and-sign-image:
     runs-on: ubuntu-latest
     needs: container-scan
@@ -67,7 +96,7 @@ jobs:
       contents: read
       packages: write
       id-token: write
-      
+
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
@@ -89,12 +118,11 @@ jobs:
       - name: Load image
         run: |
           docker load --input /tmp/${{ github.sha }}.tar
-          
+
       - name: Push image to GitHub Container Registry
         run: |
           docker push ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          
+
       - name: Sign image with a key
         run: |
           cosign sign --yes $(docker inspect ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} --format='{{index .RepoDigests 0}}')
-      
