@@ -1,0 +1,38 @@
+name: DevOps CI/CD
+
+on:
+  push:
+    branches:
+      - main
+env:
+  DOCKER_REGISTRY: docker
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          push: false
+          tags: ${{ env.DOCKER_REGISTRY }}/devops-ci-cd:${{ github.sha }}
+          file: apps/api/Dockerfile
+          context: .
+          
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          image-ref: ${{ env.DOCKER_REGISTRY }}/devops-ci-cd:${{ github.sha }}
+          format: "sarif"
+          output: "trivy-results.sarif"
+
+      - name: Upload Trivy scan results to GitHub Security tab 
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
