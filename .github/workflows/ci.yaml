@@ -62,7 +62,7 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           report-json: "lint-results/eslint_report.json"
-          markdown-report-on-step-summary: true
+          check-name: "Eslint Report"
 
   container-scan:
     runs-on: ubuntu-latest
