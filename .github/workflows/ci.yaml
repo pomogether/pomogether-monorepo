@@ -64,7 +64,7 @@ jobs:
           report-json: "lint-results/eslint_report.json"
           check-name: "Eslint Report"
 
-  container-scan:
+  image-scan:
     runs-on: ubuntu-latest
     needs: [build, lint]
 
@@ -96,7 +96,7 @@ jobs:
 
   push-and-sign-image:
     runs-on: ubuntu-latest
-    needs: container-scan
+    needs: image-scan
     permissions:
       contents: read
       packages: write
