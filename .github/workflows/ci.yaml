@@ -62,7 +62,7 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           report-json: "lint-results/eslint_report.json"
-          check-name: "Eslint Report"
+          check-name: "lint"
           fail-on-warning: true
           fail-on-error: true
 
