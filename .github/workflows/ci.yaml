@@ -23,6 +23,8 @@ jobs:
           outputs: type=docker,dest=/tmp/${{ github.sha }}.tar
           context: .
           file: apps/api/Dockerfile
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
