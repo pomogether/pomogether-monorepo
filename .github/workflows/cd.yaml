@@ -20,6 +20,8 @@ jobs:
         with:
           tags: ${{ env.DOCKER_REGISTRY }}/devops-ci-cd:${{ github.sha }}
           outputs: type=docker,dest=/tmp/${{ github.sha }}.tar
+          context: .
+          file: apps/api/Dockerfile
           
       - name: Upload artifact
         uses: actions/upload-artifact@v4
