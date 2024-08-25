@@ -6,6 +6,7 @@ on:
       - main
 env:
   DOCKER_REGISTRY: ghcr.io
+  IMAGE_NAME: pomogether/pomogether-monorepo
 
 jobs:
   build:
@@ -18,7 +19,7 @@ jobs:
       - name: Build and export
         uses: docker/build-push-action@v6
         with:
-          tags: ${{ env.DOCKER_REGISTRY }}/devops-ci-cd:${{ github.sha }}
+          tags: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           outputs: type=docker,dest=/tmp/${{ github.sha }}.tar
           context: .
           file: apps/api/Dockerfile
@@ -50,7 +51,7 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.20.0
         with:
-          image-ref: ${{ env.DOCKER_REGISTRY }}/devops-ci-cd:${{ github.sha }}
+          image-ref: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           format: 'sarif'
           output: 'trivy-results.sarif'
 
@@ -91,9 +92,9 @@ jobs:
           
       - name: Push image to GitHub Container Registry
         run: |
-          docker push ${{ env.DOCKER_REGISTRY }}/devops-ci-cd:${{ github.sha }}
+          docker push ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           
       - name: Sign image with a key
         run: |
-          cosign sign --yes ${{ env.DOCKER_REGISTRY }}/devops-ci-cd:${{ github.sha }}
+          cosign sign --yes ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
       
