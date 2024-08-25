@@ -33,7 +33,7 @@ jobs:
         with:
           image-ref: ${{ env.DOCKER_REGISTRY }}/devops-ci-cd:${{ github.sha }}
           format: "sarif"
-        output: "trivy-results.sarif"
+          output: "trivy-results.sarif"
           exit-code: "1"
           ignore-unfixed: true
           vuln-type: "os,library"
