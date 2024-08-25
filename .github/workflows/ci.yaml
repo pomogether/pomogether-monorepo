@@ -65,10 +65,10 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: | 
-            - ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            - ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            type=ref,event=branch,pattern={{sha}}
+            type=ref,event=pr,pattern={{sha}}
 
       - name: Build and export
         uses: docker/build-push-action@v6
