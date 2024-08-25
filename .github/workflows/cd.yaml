@@ -60,7 +60,7 @@ jobs:
         with:
           sarif_file: "trivy-results.sarif"
   
-  push-image:
+  push-and-sign-image:
     runs-on: ubuntu-latest
     needs: container-scan
     permissions:
@@ -96,5 +96,5 @@ jobs:
           
       - name: Sign image with a key
         run: |
-          cosign sign --yes ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          cosign sign --yes $(docker inspect ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} --format='{{index .RepoDigests 0}}')
       
