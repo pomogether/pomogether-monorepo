@@ -54,6 +54,7 @@ jobs:
       APP_NAME: pomogether-${{ matrix.app }}
       IMAGE_NAME: pomogether/pomogether-${{ matrix.app }}
       DOCKER_FILE: apps/${{ matrix.app }}/Dockerfile
+      ARTIFACT_NAME: pomogether-${{ matrix.app }}-${{ github.sha }}
 
     steps:
       - uses: actions/checkout@v4
@@ -84,14 +85,14 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.sha }}
-          path: /tmp/${{  github.sha }}.tar
+          name: ${{ env.ARTIFACT_NAME }}
+          path: /tmp/${{ env.ARTIFACT_NAME }}.tar
           retention-days: 3
           
       - name: Export outputs
         id: build-outputs
         run: |
-          echo "ARTIFACT_NAME=${{ github.sha }}" >> $GITHUB_OUTPUT
+          echo "ARTIFACT_NAME=${{ env.ARTIFACT_NAME }}" >> $GITHUB_OUTPUT
           echo "IMAGE_NAME=${{ steps.meta.outputs.tags }}" >> $GITHUB_OUTPUT
 
   image-scan:
