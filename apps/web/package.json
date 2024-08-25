@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "lint:report": "next lint --format json --output-file eslint_report.json"
+    "lint:report": "next lint --format json --output-file ../../lint-results/web.json"
   },
   "dependencies": {
     "@repo/ui": "workspace:*",

@@ -23,6 +23,8 @@ jobs:
           outputs: type=docker,dest=/tmp/${{ github.sha }}.tar
           context: .
           file: apps/api/Dockerfile
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -52,16 +54,21 @@ jobs:
 
       - name: Lint code
         run: pnpm lint:report
+        continue-on-error: true
+      
+      - name: Merge lint reports
+        run: jq -s '[.[]]|flatten' lint-results/*.json &> lint-results/eslint_report.json
 
       - name: Annotate Code Linting Results
         uses: ataylorme/eslint-annotate-action@v3
-        continue-on-error: true
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          report-json: "./packages/ui/eslint_report.json"
-          markdown-report-on-step-summary: true
+          report-json: "lint-results/eslint_report.json"
+          check-name: "lint"
+          fail-on-warning: true
+          fail-on-error: true
 
-  container-scan:
+  image-scan:
     runs-on: ubuntu-latest
     needs: [build, lint]
 
@@ -81,10 +88,14 @@ jobs:
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.20.0
+        continue-on-error: true
         with:
           image-ref: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           format: "sarif"
           output: "trivy-results.sarif"
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+          ignore-unfixed: true
 
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
@@ -93,7 +104,7 @@ jobs:
 
   push-and-sign-image:
     runs-on: ubuntu-latest
-    needs: container-scan
+    needs: image-scan
     permissions:
       contents: read
       packages: write
