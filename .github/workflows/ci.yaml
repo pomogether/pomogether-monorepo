@@ -101,8 +101,8 @@ jobs:
       matrix:
         app: [api, web]
     env:
-      ARTIFACT_NAME: ${{ needs.build.outputs.artifact_name }}
-      IMAGE_NAME: ${{ needs.build.outputs.image_name }}
+      ARTIFACT_NAME: ${{ needs.build.outputs.ARTIFACT_NAME }}
+      IMAGE_NAME: ${{ needs.build.outputs.IMAGE_NAME }}
 
     steps:
       - uses: actions/checkout@v4
@@ -145,8 +145,8 @@ jobs:
       packages: write
       id-token: write
     env:
-      ARTIFACT_NAME: ${{ needs.build.outputs.artifact_name }}
-      IMAGE_NAME:  ${{ needs.build.outputs.image_name }}
+      ARTIFACT_NAME: ${{ needs.build.outputs.ARTIFACT_NAME }}
+      IMAGE_NAME: ${{ needs.build.outputs.IMAGE_NAME }}
 
     steps:
       - uses: actions/checkout@v4
